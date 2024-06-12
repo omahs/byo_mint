@@ -10,7 +10,7 @@ import { executeTx } from "../byoMint-client";
 describe.only("v2 byo mint program", () => {
   const rpc = String(process.env.RPC);
   const connection = new Connection(rpc, "confirmed")
-  const decodedSecretKey = base58.decode(String(process.env.ADMIN_KEY));
+  const decodedSecretKey = base58.decode(String(process.env.LARRY_EMPIRE));
   const kp = Keypair.fromSecretKey(decodedSecretKey);
   const decodedSecretKey2 = base58.decode(String(process.env.CLIENT_KEY));
   const kp2 = Keypair.fromSecretKey(decodedSecretKey2);
@@ -25,7 +25,7 @@ describe.only("v2 byo mint program", () => {
     console.log("-- kp2 balance: ", await connection.getBalance(kp2.publicKey) / LAMPORTS_PER_SOL);
   });
 
-  const symbol = "EPD"; //"EDAO"
+  const symbol = "EDAO"; 
   const name = "EmpireDao Membership";
   const uriPrefix = 'https://shdw-drive.genesysgo.net/61GxJ6svxHqYuMbCt8W2h6RrjyxfZxKdyAHm7qCfK1PD';
   const collectionUri = `${uriPrefix}/collection.json`;
@@ -68,7 +68,7 @@ describe.only("v2 byo mint program", () => {
   });
   
   it.only("should increase supply cap and/or update price", async () => {
-    const ix = await updateFaucetV2Ix(program, kp.publicKey, faucetPda, 102, LAMPORTS_PER_SOL * .01 - (0.00094656 * LAMPORTS_PER_SOL));
+    const ix = await updateFaucetV2Ix(program, kp.publicKey, faucetPda, 3333, 2 * LAMPORTS_PER_SOL - (0.00094656 * LAMPORTS_PER_SOL));
     await executeTx(kp, [ix], null, false, true);
   })
 

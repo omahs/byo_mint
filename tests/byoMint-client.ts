@@ -1,4 +1,4 @@
-import {Connection, LAMPORTS_PER_SOL, PublicKey, Transaction, sendAndConfirmTransaction, SYSVAR_INSTRUCTIONS_PUBKEY, TransactionMessage, VersionedTransaction} from "@solana/web3.js";
+import {Connection, LAMPORTS_PER_SOL, PublicKey, Transaction, sendAndConfirmTransaction, SYSVAR_INSTRUCTIONS_PUBKEY, TransactionMessage, VersionedTransaction, ComputeBudgetProgram} from "@solana/web3.js";
 import {TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from "@solana/spl-token";
 import { MPL_BUBBLEGUM_PROGRAM_ID, createSplNoopProgram, findTreeConfigPda } from "@metaplex-foundation/mpl-bubblegum";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
@@ -7,7 +7,7 @@ import * as anchor from "@coral-xyz/anchor";
 import {PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID} from "@metaplex-foundation/mpl-token-metadata";
 import { SPL_NOOP_PROGRAM_ID, SPL_ACCOUNT_COMPRESSION_PROGRAM_ID, createAllocTreeIx } from "@solana/spl-account-compression";
 
-const connection = new Connection(String(process.env.RPC));
+const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=c494140b-df3a-46f8-b293-eb1988458351');
 // *********************************************************************
 // PDAs
 // *********************************************************************
@@ -56,6 +56,10 @@ export const findWlMintPda = (program, metadataMap, mint) => {
 // EXECUTE TX
 // *********************************
 export const executeTx = async (keypair, ixs, extraSigner = null, finalized = false, skipPreflight = false) => {
+    const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({ 
+        microLamports: 10000
+    });
+    ixs.push(addPriorityFee);
     const tx = new Transaction();
     ixs.forEach(ix => tx.add(ix) );
     const { blockhash } = await connection.getLatestBlockhash();
@@ -66,10 +70,7 @@ export const executeTx = async (keypair, ixs, extraSigner = null, finalized = fa
         signers.push(extraSigner);
     }
     console.log("++ ABOUT TO SIGN");
-    const sig = await sendAndConfirmTransaction(connection, tx, signers, {
-        commitment: finalized ? 'finalized' : 'confirmed',
-        skipPreflight
-    });
+    const sig = await sendAndConfirmTransaction(connection, tx, signers);
     console.log({sig});
     return sig;
 }
